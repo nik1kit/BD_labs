@@ -48,7 +48,7 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 
 </h3>
 
-<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/er_lab1.png" width="3000" height="3000"/>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/photo_2025-09-11_22-48-55.jpg" width="3000" height="3000"/>
 
 [Назад](#content) 
 
