@@ -50,7 +50,7 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 <h3>
   Er-диаграмма.
 </h3>
-<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/photo_2025-09-13_16-33-11.jpg" width="3000" height="3000"/>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/photo_2025-09-13_16-34-56.jpg" width="3000" height="3000"/>
 
 <h3>
   Реляционная модель.
