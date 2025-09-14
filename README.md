@@ -55,7 +55,7 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 <h3>
   Реляционная модель.
 </h3>
-<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/photo_2025-09-13_16-27-56.jpg" width="3000" height="3000"/>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/photo_2025-09-14_14-30-01.jpg" width="3000" height="3000"/>
 [Назад](#content) 
 
   
