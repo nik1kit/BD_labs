@@ -72,5 +72,10 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 
 [Посмотреть SQL-код создания таблицы](https://github.com/nik1kit/BD_labs/blob/main/SQL_code/Create_tables_lab1.sql)
 
-
+<h3>
+  Диаграмма таблицы:
+  
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/image.png" width="3000" height="3000"/>
+  
+</h3>
   
