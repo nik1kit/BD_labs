@@ -79,3 +79,38 @@ ER-модель д.б. представлена в виде ER-диаграмм�
   
 </h3>
   
+<h3>
+  Таблицы
+</h3>
+<h4>
+  Клиент:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/client.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Контракт:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/contract.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Продукт:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prodact.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Материалы:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/material.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Продукт-материал:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prod-mater.png" height="3000"/>
+</h4>
+<h4>
+  Вид продукта:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prodType.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Продажа:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/sale.png" width="3000" height="3000"/>
+</h4>
+<h4>
+  Менеджер:
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/maneger.png" width="3000" height="3000"/>
+</h4>
