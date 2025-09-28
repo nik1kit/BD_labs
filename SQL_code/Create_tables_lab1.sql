@@ -66,15 +66,15 @@ INSERT INTO ProductType (name) VALUES
 -- Таблица Contract
 -- =======================
 CREATE TABLE Contract (
-    id PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     redemption_term DATETIME NOT NULL,
     commission DECIMAL(10,2),
     sum_issued DECIMAL(15,2) NOT NULL,
     contract_date DATETIME NOT NULL,
     redemption_date DATETIME,
     redemption_status NVARCHAR(100),
-    id_client INT NOT NULL,
-    id_manager INT NOT NULL,
+    client_id INT NOT NULL,
+    manager_id INT NOT NULL,
     FOREIGN KEY (client_id) REFERENCES Client(id),
     FOREIGN KEY (manager_id) REFERENCES Manager(id)
 );
@@ -98,8 +98,8 @@ CREATE TABLE Product (
     id INT PRIMARY KEY IDENTITY(1,1),
     valuation DECIMAL(15,2) NOT NULL,
     depreciation DECIMAL(5,2) NOT NULL,
-    id_product_type INT NOT NULL,
-    id_contract INT NOT NULL,
+    product_type_id INT NOT NULL,
+    contract_id INT NOT NULL,
     FOREIGN KEY (product_type_id) REFERENCES ProductType(id),
     FOREIGN KEY (contract_id) REFERENCES Contract(id)
 );
@@ -164,10 +164,10 @@ INSERT INTO ProductMaterial (product_id, material_id, weight) VALUES
 -- Таблица Sale
 -- =======================
 CREATE TABLE Sale (
-    idINT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     price DECIMAL(15,2) NOT NULL,
     sale_date DATETIME NOT NULL,
-    id_product INT NOT NULL,
+    product_id INT NOT NULL,
     FOREIGN KEY (product_id) REFERENCES Product(id)
 );
 
@@ -182,4 +182,3 @@ INSERT INTO Sale (price, sale_date, product_id) VALUES
 (21000.00, '20250928', 8),
 (10000.00, '20250929', 9),
 (24000.00, '20250930', 10);
-
