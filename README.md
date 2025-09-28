@@ -75,7 +75,7 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 <h3>
   Диаграмма таблицы:
   
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/image.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/diagr_table.png" width="3000" height="3000"/>
   
 </h3>
   
@@ -84,33 +84,33 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 </h3>
 <h4>
   Клиент:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/client.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BA%D0%BB%D0%B8%D0%B5%D0%BD%D1%82.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Контракт:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/contract.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Продукт:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prodact.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Материалы:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/material.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BC%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%B0%D0%BB%D1%8B.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Продукт-материал:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prod-mater.png" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82-%D0%BC%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%B0%D0%BB.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Вид продукта:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/prodType.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D1%82%D0%B8%D0%BF_%D0%BF%D1%80%D0%BE%D0%B4%D1%83%D0%BA%D1%82%D0%B0.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Продажа:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/sale.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B6%D0%B0.png" width="3000" height="3000"/>
 </h4>
 <h4>
   Менеджер:
-  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/maneger.png" width="3000" height="3000"/>
+  <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/tables/%D0%BC%D0%B5%D0%BD%D0%B5%D0%B4%D0%B6%D0%B5%D1%80.png" width="3000" height="3000"/>
 </h4>
