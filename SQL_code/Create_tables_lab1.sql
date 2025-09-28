@@ -2,7 +2,7 @@
 -- Таблица Client
 -- =======================
 CREATE TABLE Client (
-    id_client INT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     full_name NVARCHAR(100) NOT NULL,
     address NVARCHAR(100),
     passport_data NVARCHAR(15) UNIQUE NOT NULL
@@ -24,7 +24,7 @@ INSERT INTO Client (full_name, address, passport_data) VALUES
 -- Таблица Manager
 -- =======================
 CREATE TABLE Manager (
-    id_manager INT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     full_name NVARCHAR(100) NOT NULL,
     passport_data NVARCHAR(15) UNIQUE NOT NULL,
     phone_number NVARCHAR(20)
@@ -46,7 +46,7 @@ INSERT INTO Manager (full_name, passport_data, phone_number) VALUES
 -- Таблица ProductType
 -- =======================
 CREATE TABLE ProductType (
-    id_product_type INT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(100) NOT NULL
 );
 
@@ -66,7 +66,7 @@ INSERT INTO ProductType (name) VALUES
 -- Таблица Contract
 -- =======================
 CREATE TABLE Contract (
-    id_contract INT PRIMARY KEY IDENTITY(1,1),
+    id PRIMARY KEY IDENTITY(1,1),
     redemption_term DATETIME NOT NULL,
     commission DECIMAL(10,2),
     sum_issued DECIMAL(15,2) NOT NULL,
@@ -75,11 +75,11 @@ CREATE TABLE Contract (
     redemption_status NVARCHAR(100),
     id_client INT NOT NULL,
     id_manager INT NOT NULL,
-    FOREIGN KEY (id_client) REFERENCES Client(id_client),
-    FOREIGN KEY (id_manager) REFERENCES Manager(id_manager)
+    FOREIGN KEY (client_id) REFERENCES Client(id),
+    FOREIGN KEY (manager_id) REFERENCES Manager(id)
 );
 
-INSERT INTO Contract (redemption_term, commission, sum_issued, contract_date, redemption_date, redemption_status, id_client, id_manager) VALUES
+INSERT INTO Contract (redemption_term, commission, sum_issued, contract_date, redemption_date, redemption_status, client_id, manager_id) VALUES
 ('20251001', 5.50, 5000.00, '20250901', NULL, 'Не выкуплен', 1, 1),
 ('20251005', 3.00, 15000.00, '20250903', '20250920', 'Выкуплен', 2, 2),
 ('20251010', 4.00, 7000.00, '20250905', NULL, 'Не выкуплен', 3, 3),
@@ -95,16 +95,16 @@ INSERT INTO Contract (redemption_term, commission, sum_issued, contract_date, re
 -- Таблица Product
 -- =======================
 CREATE TABLE Product (
-    id_product INT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     valuation DECIMAL(15,2) NOT NULL,
     depreciation DECIMAL(5,2) NOT NULL,
     id_product_type INT NOT NULL,
     id_contract INT NOT NULL,
-    FOREIGN KEY (id_product_type) REFERENCES ProductType(id_product_type),
-    FOREIGN KEY (id_contract) REFERENCES Contract(id_contract)
+    FOREIGN KEY (product_type_id) REFERENCES ProductType(id),
+    FOREIGN KEY (contract_id) REFERENCES Contract(id)
 );
 
-INSERT INTO Product (valuation, depreciation, id_product_type, id_contract) VALUES
+INSERT INTO Product (valuation, depreciation, product_type_id, contract_id) VALUES
 (5500.00, 10.00, 1, 1),
 (17000.00, 5.00, 2, 2),
 (7500.00, 20.00, 3, 3),
@@ -120,7 +120,7 @@ INSERT INTO Product (valuation, depreciation, id_product_type, id_contract) VALU
 -- Таблица Material
 -- =======================
 CREATE TABLE Material (
-    id_material INT PRIMARY KEY IDENTITY(1,1),
+    id INT PRIMARY KEY IDENTITY(1,1),
     name NVARCHAR(100) NOT NULL
 );
 
@@ -140,15 +140,15 @@ INSERT INTO Material (name) VALUES
 -- Таблица ProductMaterial (M:N)
 -- =======================
 CREATE TABLE ProductMaterial (
-    id_product INT NOT NULL,
-    id_material INT NOT NULL,
+    product_id INT NOT NULL,
+    material_id INT NOT NULL,
     weight DECIMAL(5,2),
-    PRIMARY KEY (id_product, id_material),
-    FOREIGN KEY (id_product) REFERENCES Product(id_product),
-    FOREIGN KEY (id_material) REFERENCES Material(id_material)
+    PRIMARY KEY (product_id, material_id),
+    FOREIGN KEY (product_id) REFERENCES Product(id),
+    FOREIGN KEY (material_id) REFERENCES Material(id)
 );
 
-INSERT INTO ProductMaterial (id_product, id_material, weight) VALUES
+INSERT INTO ProductMaterial (product_id, material_id, weight) VALUES
 (2, 1, 0.50),
 (4, 1, 2.00),
 (8, 2, 1.20),
@@ -164,14 +164,14 @@ INSERT INTO ProductMaterial (id_product, id_material, weight) VALUES
 -- Таблица Sale
 -- =======================
 CREATE TABLE Sale (
-    id_sale INT PRIMARY KEY IDENTITY(1,1),
+    idINT PRIMARY KEY IDENTITY(1,1),
     price DECIMAL(15,2) NOT NULL,
     sale_date DATETIME NOT NULL,
     id_product INT NOT NULL,
-    FOREIGN KEY (id_product) REFERENCES Product(id_product)
+    FOREIGN KEY (product_id) REFERENCES Product(id)
 );
 
-INSERT INTO Sale (price, sale_date, id_product) VALUES
+INSERT INTO Sale (price, sale_date, product_id) VALUES
 (6000.00, '20250921', 1),
 (18000.00, '20250922', 2),
 (8000.00, '20250923', 3),
