@@ -204,7 +204,7 @@ GO
 
 EXEC GetExpiredUnredeemedProducts;
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.1.1.png" alt="Схема 4.3.2" width="450">
 
 <li><b> Процедура, на входе получающая ФИО клиента и формирующая список товаров, которые он когда-либо приносил закладывать в ломбард</li>
 
@@ -235,7 +235,7 @@ GO
 
 EXEC GetClientProducts @ClientName = N'Петров Петр Петрович';
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.1.2.png" alt="Схема 4.1.2" width="450">
 
 <li><b> Процедура, на входе получающая ФИО клиента, выходной параметр – общая сумма денег, которые он получил за все товары, заложенные им в ломбарде</li>
 
@@ -268,7 +268,7 @@ GO
 
 EXEC GetClientTotalMoney @FullName = N'Петров Петр Петрович';
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.1.3.png" alt="Схема 4.1.3" width="450">
 
 <li><b> Процедура, вызывающая вложенную процедуру, которая находит самого «дорогого» клиента (с максимальной суммой денег, полученных им от ломбарда). Главная процедура выводит для этого клиента список товаров, которые он когда-либо приносил в залог, и сведения об их выкупе</li>
   
@@ -323,10 +323,7 @@ GO
 EXEC ShowRichestClientProducts;
 
 ```
-
-
-
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.1.4.png" alt="Схема 4.1.4" width="450">
 
 </ol>
 
@@ -354,7 +351,7 @@ GO
 
 SELECT dbo.GetProductsForSale() AS [Товаров к продаже];
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.2.1.png" alt="Схема 4.2.1" width="450">
 
 <li><b>Inline-функция, возвращающая список клиентов, которые не всегда выкупали свои товары </li>
 
@@ -380,7 +377,7 @@ SELECT *
 FROM dbo.GetClientsWithDelayedRedemptions();
 
 ```
-	
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.2.2.png" alt="Схема 4.2.2" width="450">	
 
 
 <li><b> Multi-statement-функция, выдающая список товаров, состоящих из 3-х и более материалов, и ФИО их владельца</li>
@@ -420,7 +417,7 @@ SELECT *
 FROM dbo.GetProductsWithThreeOrMoreMaterials();
 
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.2.3.png" alt="Схема 4.2.3" width="450">
 </ol>
 <ol type="a">
 <h3>Создать  3 триггера:</h3>
@@ -471,13 +468,7 @@ VALUES
 (5000.00, 60.00, 2, 2);   -- не вставится, сообщение
 
 ```
-
-
-	
-
-
-
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.3.1.png" alt="Схема 4.3.1" width="450">
 
 <li><b>b)Последующий триггер на изменение признака выкупа товара – если срок выкупа истек, то признак выкупа может поменяться только на значение «не выкуплен», если нет, то признак выкупа может поменяться только на значение «выкуплен» </li>
 
@@ -535,7 +526,7 @@ FROM ContractTestее
 WHERE id IN (1,3);
 
 ```
-	
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.3.2.png" alt="Схема 4.3.2" width="450">	
 
 
 
@@ -628,7 +619,7 @@ DELETE FROM Client
 WHERE id = 2;
 
 ```
-
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.3.3.png" alt="Схема 4.3.3" width="450">
 </ol>
 
 
