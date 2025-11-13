@@ -171,3 +171,464 @@ e)  Найти клиентов, пользовавшихся услугами �
 
 </h3>
 
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab4
+
+Лабораторная №4
+<ol type="a">
+	<h3>Создать  4 различных хранимых процедуры:</h3>
+	<li><b>Процедура без параметров, формирующая список товаров, которые не были выкуплены клиентами в сроки, описанные в договоре</li>
+
+```
+CREATE PROCEDURE GetExpiredUnredeemedProducts
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        pt.name AS ProductType,
+        cl.full_name AS ClientName,
+        c.redemption_term AS RedemptionTerm,
+        c.redemption_date AS RedemptionDate
+    FROM Contract c
+        JOIN Product p ON c.id = p.contract_id
+        JOIN ProductType pt ON p.product_type_id = pt.id
+        JOIN Client cl ON c.client_id = cl.id
+    WHERE 
+        -- Либо не выкуплен вообще и срок уже прошёл
+        (c.redemption_date IS NULL AND c.redemption_term < GETDATE())
+        -- Либо выкуплен, но позже срока
+        OR (c.redemption_date > c.redemption_term);
+END;
+GO
+
+
+EXEC GetExpiredUnredeemedProducts;
+```
+
+
+<li><b> Процедура, на входе получающая ФИО клиента и формирующая список товаров, которые он когда-либо приносил закладывать в ломбард</li>
+
+```
+CREATE PROCEDURE GetClientProducts
+    @ClientName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        pt.name AS ProductType,
+        p.valuation AS Valuation,
+        p.depreciation AS Depreciation,
+        c.contract_date AS ContractDate,
+        c.sum_issued AS SumIssued,
+        c.redemption_status AS RedemptionStatus
+    FROM Client cl
+        JOIN Contract c ON cl.id = c.client_id
+        JOIN Product p ON c.id = p.contract_id
+        JOIN ProductType pt ON p.product_type_id = pt.id
+    WHERE 
+        cl.full_name = @ClientName
+    ORDER BY c.contract_date;
+END;
+GO
+
+
+EXEC GetClientProducts @ClientName = N'Петров Петр Петрович';
+```
+
+
+<li><b> Процедура, на входе получающая ФИО клиента, выходной параметр – общая сумма денег, которые он получил за все товары, заложенные им в ломбарде</li>
+
+```
+	CREATE PROCEDURE GetClientTotalMoney
+    @FullName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @TotalMoney DECIMAL(15,2);
+
+    SELECT @TotalMoney = SUM(c.sum_issued)
+    FROM Contract c
+        JOIN Client cl ON c.client_id = cl.id
+    WHERE cl.full_name = @FullName;
+
+    IF @TotalMoney IS NULL
+        SET @TotalMoney = 0;
+
+    -- вывод
+    SELECT 
+        cl.full_name AS [Клиент],
+        @TotalMoney AS [Общая сумма, выданная клиенту]
+    FROM Client cl
+    WHERE cl.full_name = @FullName;
+END;
+GO
+
+
+EXEC GetClientTotalMoney @FullName = N'Петров Петр Петрович';
+```
+
+
+<li><b> Процедура, вызывающая вложенную процедуру, которая находит самого «дорогого» клиента (с максимальной суммой денег, полученных им от ломбарда). Главная процедура выводит для этого клиента список товаров, которые он когда-либо приносил в залог, и сведения об их выкупе</li>
+  
+```
+CREATE PROCEDURE GetRichestClient
+    @RichestClient NVARCHAR(100) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 1 
+        @RichestClient = cl.full_name
+    FROM Client cl
+        JOIN Contract c ON cl.id = c.client_id
+    GROUP BY cl.full_name
+    ORDER BY SUM(c.sum_issued) DESC;
+END;
+GO
+
+
+CREATE PROCEDURE ShowRichestClientProducts
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ClientName NVARCHAR(100);
+
+    -- вызываем вложенную процедуру
+    EXEC GetRichestClient @RichestClient = @ClientName OUTPUT;
+
+    -- вывод всех товаров и информации о договорах
+    SELECT 
+        cl.full_name AS ClientName,
+        pt.name AS ProductType,
+        p.valuation AS Valuation,
+        p.depreciation AS Depreciation,
+        c.contract_date AS ContractDate,
+        c.sum_issued AS SumIssued,
+        c.redemption_date AS RedemptionDate,
+        c.redemption_status AS RedemptionStatus
+    FROM Client cl
+        JOIN Contract c ON cl.id = c.client_id
+        JOIN Product p ON c.id = p.contract_id
+        JOIN ProductType pt ON p.product_type_id = pt.id
+    WHERE cl.full_name = @ClientName
+    ORDER BY c.contract_date;
+END;
+GO
+
+
+
+EXEC ShowRichestClientProducts;
+
+```
+
+
+
+
+
+</ol>
+
+<ol type="a">
+<h3>3	пользовательских функции:</h3>
+
+<li><b>Скалярная функция, подсчитывающая количество товаров, которые д.б. выставлены на продажу (не выкуплены в срок) </li>
+  
+```  
+CREATE FUNCTION dbo.GetProductsForSale()
+RETURNS INT
+AS
+BEGIN
+    DECLARE @Count INT;
+
+    SELECT @Count = COUNT(*)
+    FROM Product p
+        JOIN Contract c ON p.contract_id = c.id
+    WHERE c.redemption_date IS NULL
+      AND c.redemption_term < GETDATE();
+
+    RETURN @Count;
+END;
+GO
+
+SELECT dbo.GetProductsForSale() AS [Товаров к продаже];
+```
+
+
+<li><b>Inline-функция, возвращающая список клиентов, которые не всегда выкупали свои товары </li>
+
+```
+CREATE FUNCTION dbo.GetClientsWithDelayedRedemptions()
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT DISTINCT
+        cl.id AS ClientID,
+        cl.full_name AS ClientName
+    FROM Client cl
+        JOIN Contract c ON cl.id = c.client_id
+    WHERE 
+        (c.redemption_date > c.redemption_term)
+        OR (c.redemption_date IS NULL AND c.redemption_term < GETDATE())
+);
+GO
+
+
+SELECT * 
+FROM dbo.GetClientsWithDelayedRedemptions();
+
+```
+	
+
+
+<li><b> Multi-statement-функция, выдающая список товаров, состоящих из 3-х и более материалов, и ФИО их владельца</li>
+
+```
+CREATE FUNCTION dbo.GetProductsWithThreeOrMoreMaterials()
+RETURNS @Result TABLE
+(
+    ProductID INT,
+    ProductType NVARCHAR(100),
+    ClientName NVARCHAR(100),
+    MaterialCount INT
+)
+AS
+BEGIN
+    INSERT INTO @Result (ProductID, ProductType, ClientName, MaterialCount)
+    SELECT 
+        p.id AS ProductID,
+        pt.name AS ProductType,
+        cl.full_name AS ClientName,
+        COUNT(pm.material_id) AS MaterialCount
+    FROM Product p
+        JOIN ProductType pt ON p.product_type_id = pt.id
+        JOIN Contract c ON p.contract_id = c.id
+        JOIN Client cl ON c.client_id = cl.id
+        JOIN ProductMaterial pm ON p.id = pm.product_id
+    GROUP BY 
+        p.id, pt.name, cl.full_name
+    HAVING COUNT(pm.material_id) >= 3;
+
+    RETURN;
+END;
+GO
+
+
+SELECT * 
+FROM dbo.GetProductsWithThreeOrMoreMaterials();
+
+```
+
+</ol>
+<ol type="a">
+<h3>Создать  3 триггера:</h3>
+<li><b>a) Триггер любого типа на добавление товара – если процент износа > 50, то товар не добавляется, выдается соотв. сообщение</li>
+
+```
+CREATE TRIGGER trg_CheckDepreciation
+ON Product
+INSTEAD OF INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @id INT, @valuation DECIMAL(15,2), @depreciation DECIMAL(5,2),
+            @product_type_id INT, @contract_id INT;
+
+    DECLARE insert_cursor CURSOR FOR
+    SELECT id, valuation, depreciation, product_type_id, contract_id
+    FROM inserted;
+
+    OPEN insert_cursor;
+    FETCH NEXT FROM insert_cursor INTO @id, @valuation, @depreciation, @product_type_id, @contract_id;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        IF @depreciation > 50
+        BEGIN
+            PRINT 'Товар не добавлен: процент износа превышает 50%';
+        END
+        ELSE
+        BEGIN
+            INSERT INTO Product (valuation, depreciation, product_type_id, contract_id)
+            VALUES (@valuation, @depreciation, @product_type_id, @contract_id);
+        END
+
+        FETCH NEXT FROM insert_cursor INTO @id, @valuation, @depreciation, @product_type_id, @contract_id;
+    END
+
+    CLOSE insert_cursor;
+    DEALLOCATE insert_cursor;
+END;
+GO
+
+
+INSERT INTO Product (valuation, depreciation, product_type_id, contract_id)
+VALUES
+(10000.00, 40.00, 1, 1),  -- вставится
+(5000.00, 60.00, 2, 2);   -- не вставится, сообщение
+
+```
+
+
+	
+
+
+
+
+
+<li><b>b)Последующий триггер на изменение признака выкупа товара – если срок выкупа истек, то признак выкупа может поменяться только на значение «не выкуплен», если нет, то признак выкупа может поменяться только на значение «выкуплен» </li>
+
+```
+CREATE TRIGGER trg_CheckRedemptionStatus_Test
+ON ContractTestее
+INSTEAD OF UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @id INT, @newStatus NVARCHAR(100), @term DATETIME;
+
+    DECLARE upd_cursor CURSOR FOR
+    SELECT i.id, i.redemption_status, i.redemption_term
+    FROM inserted i;
+
+    OPEN upd_cursor;
+    FETCH NEXT FROM upd_cursor INTO @id, @newStatus, @term;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        IF (@term < GETDATE() AND @newStatus <> 'Не выкуплен')
+            PRINT 'Ошибка: срок выкупа истёк, статус может быть только "Не выкуплен"';
+        ELSE IF (@term >= GETDATE() AND @newStatus <> 'Выкуплен')
+            PRINT 'Ошибка: срок выкупа ещё не истёк, статус может быть только "Выкуплен"';
+        ELSE
+            UPDATE ContractTestее
+            SET redemption_status = @newStatus
+            WHERE id = @id;
+
+        FETCH NEXT FROM upd_cursor INTO @id, @newStatus, @term;
+    END
+
+    CLOSE upd_cursor;
+    DEALLOCATE upd_cursor;
+END;
+GO
+
+
+
+-- Срок прошёл → статус должен быть "Не выкуплен"
+UPDATE ContractTestее
+SET redemption_status = 'Не выкуплен'
+WHERE id = 1;  -- корректно
+
+
+-- Срок не прошёл → пытаемся установить "Не выкуплен" → должно откатиться
+UPDATE ContractTestее
+SET redemption_status = 'Не выкуплен'
+WHERE id = 3;
+
+SELECT id, redemption_status, redemption_term, contract_date
+FROM ContractTestее
+WHERE id IN (1,3);
+
+```
+	
+
+
+
+
+
+
+<li><b>Замещающий триггер на операцию удаления владельца товара – если у него по всем договорам товары выкуплены, то удаляем  владельца и все его договора, если нет – ничего не удаляем, выводим сообщение </li>
+
+```
+CREATE TRIGGER trg_CheckClientDelete
+ON Client
+INSTEAD OF DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @ClientID INT;
+
+    DECLARE client_cursor CURSOR FOR
+    SELECT id FROM deleted;
+
+    OPEN client_cursor;
+    FETCH NEXT FROM client_cursor INTO @ClientID;
+
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Проверяем наличие невыкупленных товаров
+        IF EXISTS (
+            SELECT 1
+            FROM Contract c
+            JOIN Product p ON p.contract_id = c.id
+            WHERE c.client_id = @ClientID
+              AND (
+                    c.redemption_date IS NULL AND c.redemption_term < GETDATE()
+                  )
+        )
+        BEGIN
+            PRINT 'Невозможно удалить клиента с ID=' + CAST(@ClientID AS NVARCHAR(10)) + ': есть товары, не выкупленные в срок';
+        END
+        ELSE
+        BEGIN
+            -- 1. Удаляем продажи товаров
+            DELETE s
+            FROM Sale s
+            JOIN Product p ON s.product_id = p.id
+            JOIN Contract c ON p.contract_id = c.id
+            WHERE c.client_id = @ClientID;
+
+            -- 2. Удаляем материалы товаров
+            DELETE pm
+            FROM ProductMaterial pm
+            JOIN Product p ON pm.product_id = p.id
+            JOIN Contract c ON p.contract_id = c.id
+            WHERE c.client_id = @ClientID;
+
+            -- 3. Удаляем товары
+            DELETE p
+            FROM Product p
+            JOIN Contract c ON p.contract_id = c.id
+            WHERE c.client_id = @ClientID;
+
+            -- 4. Удаляем договоры
+            DELETE FROM Contract
+            WHERE client_id = @ClientID;
+
+            -- 5. Удаляем клиента
+            DELETE FROM Client
+            WHERE id = @ClientID;
+
+            PRINT 'Клиент с ID=' + CAST(@ClientID AS NVARCHAR(10)) + ' и все его договора, товары, продажи и материалы удалены';
+        END
+
+        FETCH NEXT FROM client_cursor INTO @ClientID;
+    END
+
+    CLOSE client_cursor;
+    DEALLOCATE client_cursor;
+END;
+GO
+
+
+
+
+-- Клиент с невыкупленными товарами → удаление запрещено
+DELETE FROM Client
+WHERE id = 1;
+
+-- Клиент со всеми выкупленными товарами → удаление разрешено
+DELETE FROM Client
+WHERE id = 2;
+
+```
+
+</ol>
+
+
