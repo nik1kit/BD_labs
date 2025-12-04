@@ -622,4 +622,263 @@ WHERE id = 2;
 <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/ForLab4/4.3.3.png" alt="Схема 4.3.3" width="450">
 </ol>
 
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab6
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
 
+<div>
+  <h4>Создание графовых таблиц и работа с ними</h4>
+  
+  <p><b>Задание 1:</b></p>
+  <ol>
+    <li>Используйте реляционную БД из лабораторной работы №2.</li>
+    <li>Продумайте и создайте графовые таблицы по реляционной БД, заполните графовые таблицы используя данные в реляционных таблицах.</li>
+    <li>ЗНапишите запросы из задания 3.2 используя паттерн MATCH.</li>
+    <li>Сравните полученные результаты  с  результатами запросов к реляционной модели.</li>
+  </ol>
+  
+  <p><b>Отчет предоставить в виде:</b></p>
+  <ul>
+    <li>Схема узлов и ребер.</li>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/%D0%B3%D1%80%D0%B0%D1%84.png" alt="Узлы и рёбра" width="650">
+    <li>Скрипт для создания и заполнения графовых таблиц</li>
+	  
+```
+-- Создание узлов
+CREATE TABLE ClientNode (
+    id INT,
+    full_name NVARCHAR(100),
+    address NVARCHAR(100),
+    passport_data NVARCHAR(15)
+) AS NODE;
+
+CREATE TABLE ManagerNode (
+    id INT,
+    full_name NVARCHAR(100),
+    passport_data NVARCHAR(15),
+    phone_number NVARCHAR(20)
+) AS NODE;
+
+CREATE TABLE ContractNode (
+    id INT,
+    redemption_term DATETIME,
+    commission DECIMAL(10,2),
+    sum_issued DECIMAL(15,2),
+    contract_date DATETIME,
+    redemption_date DATETIME,
+    redemption_status NVARCHAR(100)
+) AS NODE;
+
+CREATE TABLE ProductNode (
+    id INT,
+    valuation DECIMAL(15,2),
+    depreciation DECIMAL(5,2)
+) AS NODE;
+
+CREATE TABLE ProductTypeNode (
+    id INT,
+    name NVARCHAR(100)
+) AS NODE;
+
+CREATE TABLE MaterialNode (
+    id INT,
+    name NVARCHAR(100)
+) AS NODE;
+
+CREATE TABLE SaleNode (
+    id INT,
+    price DECIMAL(15,2),
+    sale_date DATETIME
+) AS NODE;
+
+
+-- Создание ребер
+CREATE TABLE ClientHasContract AS EDGE;
+CREATE TABLE ManagerApprovesContract AS EDGE;
+CREATE TABLE ContractHasProduct AS EDGE;
+CREATE TABLE ProductHasType AS EDGE;
+CREATE TABLE ProductHasMaterial (
+    weight DECIMAL(5,2)
+) AS EDGE;
+CREATE TABLE ProductWasSold AS EDGE;
+
+
+-- Заполнение узлов
+INSERT INTO ClientNode SELECT id, full_name, address, passport_data FROM Client;
+INSERT INTO ManagerNode SELECT id, full_name, passport_data, phone_number FROM Manager;
+INSERT INTO ContractNode SELECT id, redemption_term, commission, sum_issued, contract_date, redemption_date, redemption_status FROM Contract;
+INSERT INTO ProductNode SELECT id, valuation, depreciation FROM Product;
+INSERT INTO ProductTypeNode SELECT id, name FROM ProductType;
+INSERT INTO MaterialNode SELECT id, name FROM Material;
+INSERT INTO SaleNode SELECT id, price, sale_date FROM Sale;
+
+
+-- Заполнение ребер
+-- 1) Client -> Contract
+INSERT INTO ClientHasContract ($from_id, $to_id)
+SELECT cn.$node_id, contn.$node_id
+FROM ClientNode cn
+JOIN Client c ON cn.id = c.id                   
+JOIN Contract cont ON c.id = cont.client_id    
+JOIN ContractNode contn ON contn.id = cont.id;  
+
+-- 2) Manager -> Contract
+INSERT INTO ManagerApprovesContract ($from_id, $to_id)
+SELECT mn.$node_id, contn.$node_id
+FROM ManagerNode mn
+JOIN Manager m ON mn.id = m.id
+JOIN Contract cont ON m.id = cont.manager_id
+JOIN ContractNode contn ON contn.id = cont.id;
+
+-- 3) Contract -> Product
+INSERT INTO ContractHasProduct ($from_id, $to_id)
+SELECT contn.$node_id, pn.$node_id
+FROM ContractNode contn
+JOIN Contract cont ON contn.id = cont.id
+JOIN Product p ON p.contract_id = cont.id
+JOIN ProductNode pn ON pn.id = p.id;
+
+-- 4) Product -> ProductType
+INSERT INTO ProductHasType ($from_id, $to_id)
+SELECT pn.$node_id, ptn.$node_id
+FROM ProductNode pn
+JOIN Product p ON pn.id = p.id
+JOIN ProductType pt ON p.product_type_id = pt.id
+JOIN ProductTypeNode ptn ON ptn.id = pt.id;
+
+-- 5) Product -> Material (с weight в свойстве ребра)
+INSERT INTO ProductHasMaterial ($from_id, $to_id, weight)
+SELECT pn.$node_id, mn.$node_id, pm.weight
+FROM ProductNode pn
+JOIN Product p ON pn.id = p.id
+JOIN ProductMaterial pm ON p.id = pm.product_id
+JOIN MaterialNode mn ON mn.id = pm.material_id;
+
+-- 6) Product -> Sale
+INSERT INTO ProductWasSold ($from_id, $to_id)
+SELECT pn.$node_id, sn.$node_id
+FROM ProductNode pn
+JOIN Product p ON pn.id = p.id
+JOIN Sale s ON s.product_id = p.id
+JOIN SaleNode sn ON sn.id = s.id;
+
+```
+<li>Запросы из задания 3.2 к двум моделям(реляционная, графовая).</li>
+  </ul>
+<ol>
+  <li>Список товаров, выставленных на продажу:</li>
+	
+```
+SELECT DISTINCT
+    p.id AS ProductID,
+    pt.name AS ProductType,
+    p.valuation AS Valuation,
+    p.depreciation AS Depreciation,
+    s.price AS SalePrice,
+    s.sale_date AS SaleDate
+FROM ProductNode p,
+     ProductHasType pht,
+     ProductTypeNode pt,
+     ProductWasSold pws,
+     SaleNode s
+WHERE MATCH(
+    p-(pht)->pt
+    AND
+    p-(pws)->s
+);
+```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/1.png" alt="Схема 6.1" width="500">
+<li>Выдать список товаров, принятых в залог</li>
+  
+```
+SELECT
+    c.contract_date AS AcceptanceDate,
+    pt.name         AS ProductType,
+    COUNT(p.id)     AS Quantity
+FROM ContractNode c,
+     ContractHasProduct chp,
+     ProductNode p,
+     ProductHasType pht,
+     ProductTypeNode pt
+WHERE MATCH(
+    c-(chp)->p
+    AND
+    p-(pht)->pt
+)
+GROUP BY c.contract_date, pt.name
+ORDER BY c.contract_date;
+
+```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/2.png" alt="Схема 6.2" width="600">
+<li>Выручка ломбарда от комиссионных с начала года:</li>
+
+```
+SELECT
+    pt.name AS ProductType,
+    SUM(c.sum_issued * c.commission / 100) AS CommissionRevenue
+FROM ContractNode c,
+     ContractHasProduct chp,
+     ProductNode p,
+     ProductHasType pht,
+     ProductTypeNode pt
+WHERE MATCH(
+    c-(chp)->p
+    AND
+    p-(pht)->pt
+)
+  AND YEAR(c.contract_date) = YEAR(GETDATE())
+GROUP BY pt.name
+ORDER BY CommissionRevenue DESC;
+
+```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/3.png" alt="Схема 6.3" width="600">
+<li>Клиенты, которые не выкупили товар в срок:</li>
+
+```
+SELECT
+    cl.full_name      AS Client,
+    c.contract_date   AS ContractDate,
+    c.redemption_term AS RedemptionTerm,
+    c.redemption_date AS RedemptionDate
+FROM ClientNode cl,
+     ClientHasContract chc,
+     ContractNode c
+WHERE MATCH(
+    cl-(chc)->c
+)
+  AND (
+        (c.redemption_date IS NULL AND c.redemption_term < GETDATE())
+     OR (c.redemption_date > c.redemption_term)
+  );
+
+```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/4.png" alt="Схема 6.4" width="600">
+<li>Клиенты: 2+ раз пользовались услугами:</li>
+
+```
+SELECT
+    cl.id AS ClientID,
+    cl.full_name AS Client,
+    COUNT(c.id) AS ContractsCount
+FROM ClientNode cl,
+     ClientHasContract chc,
+     ContractNode c
+WHERE MATCH(
+    cl-(chc)->c
+)
+GROUP BY cl.id, cl.full_name
+HAVING 
+    COUNT(c.id) >= 2
+    AND SUM(CASE WHEN c.redemption_status <> 'Выкуплен' THEN 1 ELSE 0 END) = 0;
+
+```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/5.png" alt="Схема 6.5" width="550">
+</ol>
+</div>
