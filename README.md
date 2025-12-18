@@ -945,7 +945,7 @@ SELECT * FROM Client ORDER BY id DESC;
 DELETE FROM Client WHERE passport_data IN ('3030 404040', '7070 808080');
 ```
 
-<img src="pictures/7.1.png" alt="Схема 7.1" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/1.png" width="600">
   <h3>Задание 2</h3>
   <p>Подготовить SQL-скрипты для выполнения проверок изолированности транзакций. Ваши скрипты должны работать с одной из таблиц, созданных в лабораторной работе №2.</p>
 
@@ -970,6 +970,10 @@ SELECT 'T1: После отката (вернул исходное)' as Info,
        id, sum_issued, redemption_status FROM Contract WHERE id = 1;
 
   ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/1/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/1/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -985,6 +989,10 @@ SELECT 'T2: Теперь вижу старые данные' as Info,
        id, sum_issued, redemption_status FROM Contract WHERE id = 1;
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/1/2.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/1/2.2.png" width="600">
+
 
   <li>
 	  Сценарий 2: READ UNCOMMITTED - Потерянные изменения (Lost Update)
@@ -1007,6 +1015,9 @@ SELECT 'ИТОГ: Изменения T2 потеряны! (Было бы 6650, �
        id, sum_issued FROM Contract WHERE id = 3;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/2/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/2/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -1018,6 +1029,8 @@ UPDATE Contract SET sum_issued = sum_issued * 0.95 WHERE id = 3;
 SELECT 'T2: После уменьшения' as Info, id, sum_issued FROM Contract WHERE id = 3;
 COMMIT;  
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/2/2.1.png" width="600">
 
   <li>
 	  Сценарий 3: READ COMMITTED - Защита от грязного чтения
@@ -1041,6 +1054,9 @@ SELECT 'T1: После отката' as Info,
        id, commission, sum_issued FROM Contract WHERE id = 5;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/3/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/3/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -1056,6 +1072,9 @@ SELECT 'T2: Теперь вижу исходные данные' as Info,
        id, commission, sum_issued FROM Contract WHERE id = 5;
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/3/2.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/3/2.2.png" width="600">
 
   <li>
 	  Сценарий 4: READ COMMITTED - Неповторяющееся чтение
@@ -1078,6 +1097,9 @@ SELECT 'T1: Второе чтение (данные ИЗМЕНИЛИСЬ!)' as I
 COMMIT;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/4/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/4/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -1093,6 +1115,8 @@ SELECT 'T2: После изменения' as Info,
        id, redemption_status, sum_issued FROM Contract WHERE id = 7;
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/4/2.1.png" width="600">
 
   <li>
 	  СЦЕНАРИЙ 5: REPEATABLE READ - Защита от неповторяющегося чтения
@@ -1117,6 +1141,9 @@ FROM Contract WHERE client_id = 1;
 COMMIT;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/5/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/5/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -1133,6 +1160,8 @@ FROM Contract WHERE client_id = 1;
 COMMIT;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/5/2.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/5/2.2.png" width="600">
 
   <li>
 	  СЦЕНАРИЙ 6: REPEATABLE READ - Фантомное чтение (статус 'Не выкуплен')
@@ -1159,6 +1188,9 @@ FROM Contract WHERE redemption_status = 'Не выкуплен';
 COMMIT;
 ```
 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/6/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/6/1.2.png" width="600">
+
 Второе окно:
 
 ```
@@ -1180,6 +1212,8 @@ WHERE redemption_status = 'Не выкуплен';
 
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/6/2.1.png" width="600">
 
 
   <li>
@@ -1206,6 +1240,9 @@ SELECT 'T1: Второй подсчет (фантомов НЕТ!)' as Info,
 FROM Contract WHERE commission > 4.0;
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/7/1.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/7/1.2.png" width="600">
 
 Второе окно:
 
@@ -1236,6 +1273,9 @@ ORDER BY id;
 
 COMMIT;
 ```
+
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/7/2.1.png" width="600">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/lab7/7/2.2.png" width="600">
 
   </ul>
 </div>
