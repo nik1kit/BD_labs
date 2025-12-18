@@ -882,3 +882,360 @@ HAVING
 <img src="https://github.com/nik1kit/BD_labs/blob/main/charts/for_lab6/5.png" alt="Схема 6.5" width="550">
 </ol>
 </div>
+
+
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab7
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
+
+<div>
+  <h3>Задание 1</h3>
+  <p>Используя базу, полученную в лабораторной 2, создать транзакцию, произвести ее откат и фиксацию. Показать, что данные существовали до отката, удалились после отката, снова были добавлены, и затем были успешно зафиксированы. При необходимости используйте точки сохранения и вложенные транзакции.</p>
+
+```
+-- =======================
+-- ЗАДАНИЕ 1: ТРАНЗАКЦИИ
+-- =======================
+
+-- 1. Показываем исходные данные в таблице Client
+SELECT * FROM Client;
+
+-- 2. Начинаем транзакцию
+BEGIN TRANSACTION;
+
+-- 3. Добавляем нового клиента
+INSERT INTO Client (full_name, address, passport_data) 
+VALUES ('Новиков Александр Петрович', 'ул. Мира, 15', '3030 404040');
+
+-- 4. Проверяем данные после добавления (внутри транзакции)
+SELECT * FROM Client WHERE full_name LIKE '%Новиков%';
+
+-- 5. Создаём точку сохранения (SAVEPOINT)
+SAVE TRANSACTION SAVEPOINT_1;
+
+-- 6. Добавляем еще одного клиента
+INSERT INTO Client (full_name, address, passport_data) 
+VALUES ('Козлова Мария Сергеевна', 'ул. Садовая, 8', '5050 606060');
+
+-- 7. Проверяем данные после второго добавления
+SELECT * FROM Client WHERE full_name LIKE '%Новиков%' OR full_name LIKE '%Козлова%';
+
+-- 8. Выполняем откат к точке сохранения
+ROLLBACK TRANSACTION SAVEPOINT_1;
+
+-- 9. Проверяем данные после отката
+SELECT * FROM Client WHERE full_name LIKE '%Новиков%' OR full_name LIKE '%Козлова%';
+
+-- 10. Добавляем другого клиента после отката
+INSERT INTO Client (full_name, address, passport_data) 
+VALUES ('Семенова Ольга Игоревна', 'ул. Лесная, 3', '7070 808080');
+
+-- 11. Проверяем данные перед фиксацией
+SELECT * FROM Client WHERE full_name LIKE '%Новиков%' OR full_name LIKE '%Семенова%';
+
+-- 12. ФИКСИРУЕМ ТРАНЗАКЦИЮ
+COMMIT TRANSACTION;
+
+-- 13. Проверяем итоговые данные
+SELECT * FROM Client ORDER BY id DESC;
+
+-- 14. Очистка добавленных данных (для последующих экспериментов)
+DELETE FROM Client WHERE passport_data IN ('3030 404040', '7070 808080');
+```
+
+<img src="pictures/7.1.png" alt="Схема 7.1" width="600">
+  <h3>Задание 2</h3>
+  <p>Подготовить SQL-скрипты для выполнения проверок изолированности транзакций. Ваши скрипты должны работать с одной из таблиц, созданных в лабораторной работе №2.</p>
+
+  <h4>СЦЕНАРИИ ПРОВЕРКИ:</h4>
+  <li>
+	  Сценарий 1: READ UNCOMMITTED - Грязное чтение (Dirty Read)
+  </li>
+  Первое окно:
+  
+  ```
+-- БЛОК 1.1 (ШАГ 1) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+UPDATE Contract SET sum_issued = 99999 WHERE id = 1;
+SELECT 'T1: Изменил на 99999 (не закоммитил)' as Info, 
+       id, sum_issued, redemption_status FROM Contract WHERE id = 1;
+
+-- БЛОК 1.3 (ШАГ 3)
+ROLLBACK;
+SELECT 'T1: После отката (вернул исходное)' as Info,
+       id, sum_issued, redemption_status FROM Contract WHERE id = 1;
+
+  ```
+Второе окно:
+
+```
+-- БЛОК 1.2 (ШАГ 2) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+SELECT 'T2: Вижу 99999! (грязное чтение)' as Info,
+       id, sum_issued, redemption_status FROM Contract WHERE id = 1;
+
+-- БЛОК 1.4 (ШАГ 4) 
+SELECT 'T2: Теперь вижу старые данные' as Info,
+       id, sum_issued, redemption_status FROM Contract WHERE id = 1;
+COMMIT;
+```
+
+  <li>
+	  Сценарий 2: READ UNCOMMITTED - Потерянные изменения (Lost Update)
+  </li>
+
+Первое окно:
+
+```
+-- БЛОК 2.1 (ШАГ 1)
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+SELECT 'T1: Читаю исходные данные' as Info, id, sum_issued FROM Contract WHERE id = 3;
+
+-- БЛОК 2.3 (ШАГ 3)
+UPDATE Contract SET sum_issued = 7000.00 * 1.10 WHERE id = 3;
+SELECT 'T1: После увеличения' as Info, id, sum_issued FROM Contract WHERE id = 3;
+COMMIT;
+SELECT 'ИТОГ: Изменения T2 потеряны! (Было бы 6650, стало 7700)' as Info,
+       id, sum_issued FROM Contract WHERE id = 3;
+```
+
+Второе окно:
+
+```
+-- БЛОК 2.2 (ШАГ 2)
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+BEGIN TRANSACTION;
+UPDATE Contract SET sum_issued = sum_issued * 0.95 WHERE id = 3;
+SELECT 'T2: После уменьшения' as Info, id, sum_issued FROM Contract WHERE id = 3;
+COMMIT;  
+```
+
+  <li>
+	  Сценарий 3: READ COMMITTED - Защита от грязного чтения
+  </li>
+
+
+Первое окно:
+
+```
+-- БЛОК 3.1 (ШАГ 1) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+UPDATE Contract SET commission = commission + 2 WHERE id = 5;
+SELECT 'T1: Изменил комиссию (не закоммитил)' as Info,
+       id, commission, sum_issued FROM Contract WHERE id = 5;
+
+-- БЛОК 3.3 (ШАГ 3) 
+ROLLBACK;
+SELECT 'T1: После отката' as Info,
+       id, commission, sum_issued FROM Contract WHERE id = 5;
+```
+
+Второе окно:
+
+```
+-- БЛОК 3.2 (ШАГ 2) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+SELECT 'T2: ЖДЁТ завершения T1...' as Info,
+       id, commission, sum_issued FROM Contract WHERE id = 5;
+
+-- БЛОК 3.4 (ШАГ 4) 
+SELECT 'T2: Теперь вижу исходные данные' as Info,
+       id, commission, sum_issued FROM Contract WHERE id = 5;
+COMMIT;
+```
+
+  <li>
+	  Сценарий 4: READ COMMITTED - Неповторяющееся чтение
+  </li>
+
+
+Первое окно:
+
+```
+-- БЛОК 4.1 (ШАГ 1) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+SELECT 'T1: Первое чтение' as Info,
+       id, redemption_status, sum_issued FROM Contract WHERE id = 7;
+
+-- БЛОК 4.3 (ШАГ 3) 
+SELECT 'T1: Второе чтение (данные ИЗМЕНИЛИСЬ!)' as Info,
+       id, redemption_status, sum_issued FROM Contract WHERE id = 7;
+COMMIT;
+```
+
+Второе окно:
+
+```
+-- БЛОК 4.2 (ШАГ 2)
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+UPDATE Contract SET 
+    redemption_status = 'Изменен T2',
+    sum_issued = sum_issued + 1000 
+WHERE id = 7;
+SELECT 'T2: После изменения' as Info,
+       id, redemption_status, sum_issued FROM Contract WHERE id = 7;
+COMMIT;
+```
+
+  <li>
+	  СЦЕНАРИЙ 5: REPEATABLE READ - Защита от неповторяющегося чтения
+  </li>
+
+
+Первое окно:
+
+```
+-- БЛОК 5.1 (ШАГ 1)
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION;
+SELECT 'T1: Первое чтение договоров клиента 1' as Info,
+       id, sum_issued, redemption_status 
+FROM Contract WHERE client_id = 1;
+
+-- БЛОК 5.3 (ШАГ 3)
+SELECT 'T1: Второе чтение (данные НЕ изменились!)' as Info,
+       id, sum_issued, redemption_status 
+FROM Contract WHERE client_id = 1;
+COMMIT;
+```
+
+Второе окно:
+
+```
+-- БЛОК 5.2 (ШАГ 2) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION;
+UPDATE Contract SET sum_issued = sum_issued + 500 WHERE client_id = 1;
+
+-- БЛОК 5.4 (ШАГ 4) 
+SELECT 'T2: Теперь могу изменить' as Info,
+       id, sum_issued, redemption_status 
+FROM Contract WHERE client_id = 1;
+COMMIT;
+```
+
+
+  <li>
+	  СЦЕНАРИЙ 6: REPEATABLE READ - Фантомное чтение (статус 'Не выкуплен')
+  </li>
+
+
+Первое окно:
+
+```
+-- БЛОК 6.1 (ШАГ 1) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION;
+SELECT 'T1: Первый подсчет невыкупленных' as Info,
+       COUNT(*) as Количество,
+       SUM(sum_issued) as Общая_сумма
+FROM Contract WHERE redemption_status = 'Не выкуплен';
+
+-- БЛОК 6.3 (ШАГ 3)
+SELECT 'T1: Второй подсчет (появился ФАНТОМ!)' as Info,
+       COUNT(*) as Количество,
+       SUM(sum_issued) as Общая_сумма
+FROM Contract WHERE redemption_status = 'Не выкуплен';
+COMMIT;
+```
+
+Второе окно:
+
+```
+-- БЛОК 6.2 (ШАГ 2)
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION;
+
+-- Находим договор с другим статусом и меняем его
+UPDATE TOP (1) Contract 
+SET redemption_status = 'Не выкуплен'
+WHERE redemption_status <> 'Не выкуплен'
+  AND id IN (1, 3, 5, 7, 9);  -- только наши тестовые id
+
+SELECT 'T2: Изменил статус договора' as Info,
+       COUNT(*) as Изменено_договоров
+FROM Contract 
+WHERE redemption_status = 'Не выкуплен';
+
+COMMIT;
+```
+
+
+  <li>
+	  СЦЕНАРИЙ 7: SERIALIZABLE - Защита от фантомов (комиссия > 4)
+  </li>
+
+
+Первое окно:
+
+```
+-- БЛОК 7.1 (ШАГ 1) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRANSACTION;
+SELECT 'T1: Первый подсчет договоров с комиссией > 4%' as Info,
+       COUNT(*) as Количество,
+       AVG(commission) as Средняя_комиссия
+FROM Contract WHERE commission > 4.0;
+
+-- БЛОК 7.3 (ШАГ 3) 
+SELECT 'T1: Второй подсчет (фантомов НЕТ!)' as Info,
+       COUNT(*) as Количество,
+       AVG(commission) as Средняя_комиссия
+FROM Contract WHERE commission > 4.0;
+COMMIT;
+```
+
+Второе окно:
+
+```
+-- БЛОК 7.2 (ШАГ 2) 
+USE Ломбард;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRANSACTION;
+
+-- Находим договор с комиссией <= 4 и увеличиваем её > 4
+-- Так он попадет в выборку T1 (комиссия > 4)
+UPDATE TOP (1) Contract 
+SET commission = 6.0  -- Увеличиваем до 6% (больше 4)
+WHERE commission <= 4.0 
+  AND id IN (1, 3, 5, 7, 9);  -- Только наши тестовые id
+
+SELECT 'T2: Пытаюсь изменить комиссию' as Info;
+
+-- БЛОК 7.4 (ШАГ 4)
+SELECT 'T2: Теперь могу изменить' as Info;
+
+-- Просто показываем все наши тестовые договоры
+SELECT 'Все тестовые договоры после изменений:' as Info,
+       id, commission, redemption_status, sum_issued
+FROM Contract 
+WHERE id IN (1, 3, 5, 7, 9)
+ORDER BY id;
+
+COMMIT;
+```
+
+  </ul>
+</div>
