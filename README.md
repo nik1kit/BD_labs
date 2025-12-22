@@ -1380,9 +1380,8 @@ db.restaurants.find(
 
 ```
 
-<img src="pictures/8.1.1.1.png" alt="Схема 8.1.1.1" width="260"> 
-<img src="pictures/8.1.1.2.png" alt="Схема 8.1.1.2" width="260"> 
-<img src="pictures/8.1.1.3.png" alt="Схема 8.1.1.3" width="260"> 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.1.1.png" alt="Схема 8.1.1.1" width="260"> 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.1.2.png" alt="Схема 8.1.1.1" width="260"> 
     <li>Выведите первые 5 ресторанов в алфавитном порядке, которые находятся в районе Bronx.</li>
 
 ```
@@ -1395,7 +1394,7 @@ db.restaurants.find(
 
 ```
 
-<img src="pictures/8.1.2.png" alt="Схема 8.1.2" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.2.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Найдите рестораны, которые набрали более 80, но менее 100 баллов.</li>
 
 ```
@@ -1407,7 +1406,8 @@ db.restaurants.find({
 
 ```
 
-<img src="pictures/8.1.3.png" alt="Схема 8.1.3" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.3.1.jpg" alt="Схема 8.1.1.1" width="260"> 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.3.2.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Найдите рестораны, которые не относятся к типу кухни American, получили оценку «А», не расположены в районе Brooklyn. Документ должен отображаться в соответствии с кухней в порядке убывания. (Их много. На скринах не все)</li>
 
 ```
@@ -1427,8 +1427,8 @@ db.restaurants.find(
 
 ```
 
-<img src="pictures/8.1.4.1.png" alt="Схема 8.1.4.1" width="375">
-<img src="pictures/8.1.4.2.png" alt="Схема 8.1.4.2" width="375">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.4.1.jpg" alt="Схема 8.1.1.1" width="260"> 
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.4.2.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Найдите идентификатор ресторана, название, район и кухню для тех ресторанов, чье название начинается с первых трех букв назвали «Wil»</li>
 
 ```
@@ -1445,7 +1445,7 @@ db.restaurants.find(
 
 ```
 
-<img src="pictures/8.1.5.png" alt="Схема 8.1.5" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.5.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Найдите рестораны, которые относятся к району Bronx и готовят American или Chinese блюда.</li>
 
 ```
@@ -1456,8 +1456,7 @@ db.restaurants.find({
 
 ```
 
-<img src="pictures/8.1.6.1.png" alt="Схема 8.1.6.1" width="375">
-<img src="pictures/8.1.6.2.png" alt="Схема 8.1.6.2" width="375">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.6.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Найдите идентификатор ресторана, название и оценки для тех ресторанов, которые «2014-08-11T00: 00: 00Z» набрали 9 баллов за оценку А</li>
 
 
@@ -1482,7 +1481,7 @@ db.restaurants.find(
 )
 ```
 
-<img src="pictures/8.1.7.png" alt="Схема 8.1.7" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.7.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>В каждом районе посчитайте количество ресторанов по каждому виду кухни. Документ должен иметь формат borough, cuisine, count</li>
 
 
@@ -1509,7 +1508,7 @@ db.restaurants.aggregate([
 
 ```
 
-<img src="pictures/8.1.8.png" alt="Схема 8.1.8" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.8.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>В районе Bronx найдите ресторан с минимальной суммой набранных баллов.</li>
 
 ```
@@ -1526,7 +1525,7 @@ db.restaurants.aggregate([
 
 ```
 
-<img src="pictures/8.1.9.png" alt="Схема 8.1.9" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.10.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Добавьте в коллекцию свой любимый ресторан.</li>
 
 
@@ -1546,7 +1545,7 @@ db.restaurants.insertOne({
 
 ```
 
-<img src="pictures/8.1.10.png" alt="Схема 8.1.10" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.9.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>В добавленном ресторане укажите информацию о времени его работы.</li>
 
 ```
@@ -1565,7 +1564,7 @@ db.restaurants.updateOne(
 
 ```
 
-<img src="pictures/8.1.11.png" alt="Схема 8.1.11" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.11.jpg" alt="Схема 8.1.1.1" width="260"> 
     <li>Измените время работы вашего любимого ресторана.</li>
 
 ```
@@ -1580,7 +1579,7 @@ db.restaurants.updateOne(
 
 ```
 
-<img src="pictures/8.1.12.png" alt="Схема 8.1.12" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/1.12.jpg" alt="Схема 8.1.1.1" width="260"> 
   </ol>
 
   <h4>Задание 2</h4>
@@ -1614,7 +1613,7 @@ db.weathers.aggregate([
 
 ```
 
-<img src="pictures/8.2.1.png" alt="Схема 8.2.1" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.1.jpg" alt="Схема 8.2.1" width="450"> <br>
     <li>Какова средняя температура в году, если исключить 10 дней с самой низкой температурой и 10 дней с самой высокой?</li>
 
 ```
@@ -1642,7 +1641,7 @@ db.weathers.aggregate([
 
 ```
 
-<img src="pictures/8.2.2.png" alt="Схема 8.2.2" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.2.jpg" alt="Схема 8.2.2" width="450"> <br>
     <li>Найти первые 10 записей с самой низкой погодой, когда дул ветер с юга и посчитайте среднюю температуры для этих записей</li>
 
 ```
@@ -1667,8 +1666,7 @@ db.weathers.aggregate([
 
 ```
 
-<img src="pictures/8.2.3.1.png" alt="Схема 8.2.3.1" width="350">
-<img src="pictures/8.2.3.2.png" alt="Схема 8.2.3.2" width="350">
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.3.jpg" alt="Схема 8.2.1" width="450"> <br>
     <li>Подсчитайте количество дней, когда шел снег. (Будем считать снегом осадки, которые выпали, когда температура была ниже нуля)</li>
 
 ```
@@ -1685,7 +1683,7 @@ db.weathers.aggregate([
 ```
 
 
-<img src="pictures/8.2.4.png" alt="Схема 8.2.4" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.4.jpg" alt="Схема 8.2.1" width="450"> <br>
     <li>В течение зимы иногда шел снег, а иногда дождь. Насколько больше (или меньше) выпало осадков в виде снега.</li>
 
 ```
@@ -1729,7 +1727,7 @@ db.weathers.aggregate([
 
 ```
 
-<img src="pictures/8.2.5.png" alt="Схема 8.2.5" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.5.jpg" alt="Схема 8.2.1" width="450"> <br>
     <li>Какова вероятность того что в ясный день выпадут осадки? (Предположим, что день считается ясным, если ясная погода фиксируется более чем в 75% случаев)</li>
 
 ```
@@ -1754,7 +1752,7 @@ db.weathers.aggregate([
 
 ```
 
-<img src="pictures/8.2.6.png" alt="Схема 8.2.6" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.6.jpg" alt="Схема 8.2.1" width="450"> <br>
     <li>Увеличьте температуру на один градус при каждом измерении в нечетный день во время зимы. На сколько градусов изменилась средняя температура?</li>
 
 
@@ -1787,6 +1785,6 @@ print("Изменение средней температуры:", avg_after - a
 
 ```
 
-<img src="pictures/8.2.7.png" alt="Схема 8.2.7" width="450"> <br>
+<img src="https://github.com/nik1kit/BD_labs/blob/main/charts/forlab8/2.7.jpg" alt="Схема 8.2.1" width="450"> <br>
   </ol>
 </div>
